@@ -17,7 +17,8 @@ $version = $package.version;
 
 Write-Output "Name: ${name}, Version: ${version}, $(Get-Date -Format 'yyyyMMdd hh:mm:ss')"
 
-C:\Users\willc001217\AppData\Roaming\npm\jsdoc.ps1 -c ./jsdoc.json ./package.json -R ./README.md
+# C:\Users\willc001217\AppData\Roaming\npm\jsdoc.ps1
+jsdoc -c ./jsdoc.json ./package.json -R ./README.md
 
 # make a Temp folder
 [string]$tempPath = [System.IO.Path]::GetTempPath();

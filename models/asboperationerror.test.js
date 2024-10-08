@@ -4,22 +4,22 @@
 const { describe, expect, test } = require('@jest/globals');
 const Utility = require('../library/utility');
 
-const AsqOperationError = require('./asqoperationerror');
+const AsbOperationError = require('./asboperationerror');
 const { config } = require('yargs');
 
-describe('AsqOperationError', () => {
+describe('AsbOperationError', () => {
   test('throw catch', () => {
-    const asqError = 'Rats!';
+    const asbError = 'Rats!';
     const message = 'Check connection string and queue name';
     try {
-      throw new AsqOperationError(asqError, message);
+      throw new AsbOperationError(asbError, message);
     } catch (e) {
-      if (e instanceof AsqOperationError) {
-        expect(e.name == 'AsqOperationError').toBe(true);
-        expect(e.asqError == asqError).toBe(true);
+      if (e instanceof AsbOperationError) {
+        expect(e.name == 'AsbOperationError').toBe(true);
+        expect(e.asqError == asbError).toBe(true);
         expect(e.message == message).toBe(true);
       } else {
-        fail('Not a specific instance of AsqOperationError');
+        fail('Not a specific instance of AsbOperationError');
       }
     }
   });

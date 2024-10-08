@@ -2,11 +2,11 @@
 
 /**
  * Error: AIS Configuration Error
- * @name AsqOperationError
+ * @name AsbOperationError
  * @class
- * @classdesc ASQ Operation Error
+ * @classdesc ASB Operation Error
  */
-module.exports = class AsqOperationError extends Error {
+module.exports = class AsbOperationError extends Error {
   /**
    * CTOR, these are the fields
    * @name AsqOperationError#constructor
@@ -17,9 +17,9 @@ module.exports = class AsqOperationError extends Error {
   constructor(asqError = '(?)', ...params) {
     super(...params);
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, AsqOperationError);
+      Error.captureStackTrace(this, AsbOperationError);
     }
-    this.name = 'AsqOperationError';
+    this.name = 'AsbOperationError';
     this.asqError = asqError;
   }
 };

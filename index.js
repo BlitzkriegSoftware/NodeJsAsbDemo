@@ -125,7 +125,7 @@ async function main() {
    */
   if (!asqhelper.isValid()) {
     asbconfig.connectionString = process.env.AsbDemoConnection;
-    asbconfig.topic = process.env.AsbDemoQueue;
+    asbconfig.queue = process.env.AsbDemoQueue;
     asqhelper = new AsbHelper(asbconfig);
   }
 
@@ -189,7 +189,7 @@ async function main() {
       var body = `${stamp}; ${kind}; Index ${index}; ${delay}`;
       var message = new DemoMessage(kind, body);
       var json = message.toJson();
-      asqhelper.send(json, whoIam, delay);
+      await asqhelper.send(json, whoIam, delay);
     }
   }
 

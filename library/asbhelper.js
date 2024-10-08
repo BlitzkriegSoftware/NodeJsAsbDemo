@@ -1,15 +1,17 @@
 'use strict';
 
-const Utility = require('./utility');
-const AsqConfig = require('../models/asbconfig');
-const { ServiceBusClient } = require('@azure/service-bus');
-const AisConfigError = require('../models/aisconfigerror');
-const AisParamError = require('../models/aisparamerror');
-const AsqOperationError = require('../models/asqoperationerror');
 const { v4: uuidv4 } = require('uuid');
 const { DateTime } = require('luxon');
 
+const Utility = require('./utility');
+const AsqConfig = require('../models/asbconfig');
+const AisConfigError = require('../models/aisconfigerror');
+const AisParamError = require('../models/aisparamerror');
+const AsbOperationError = require('../models/asboperationerror');
+
 const { hasUncaughtExceptionCaptureCallback } = require('process');
+
+const { ServiceBusClient, ServiceBusMessage } = require('@azure/service-bus');
 
 /**
  * @name AsbHelper
@@ -186,31 +188,34 @@ module.exports = class AsbHelper {
 
     let contentType = AsbHelper.contentType();
 
-    // https://learn.microsoft.com/en-us/javascript/api/%40azure/service-bus/servicebusmessage?view=azure-node-latest
-    let message = {
-      contentType: contentType,
-      body: messageBody,
-      subject: subject,
-      messageId: messageId,
-      correlationId: correlationId
-    };
+    // https://learn.microsoft.com/en-us/javascript/api/@azure/service-bus/servicebusmessage?view=azure-node-latest
+    // https://www.google.com/search?q=javascript+ServiceBusMessage&rlz=1C1GCEA_enUS1090US1090&oq=javascript+ServiceBusMessage&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIICAEQABgWGB4yDQgCEAAYhgMYgAQYigUyDQgDEAAYhgMYgAQYigUyDQgEEAAYhgMYgAQYigUyDQgFEAAYhgMYgAQYigUyDQgGEAAYhgMYgAQYigUyCggHEAAYgAQYogQyCggIEAAYgAQYogQyCggJEAAYogQYiQXSAQgzNTU5ajBqN6gCCLACAQ&sourceid=chrome&ie=UTF-8
+    let message = {};
+    try {
+      message.body = messageBody;
+      message.contentType = contentType;
+      message.correlationId = correlationId;
+      message.messageId = messageId;
 
-    // Add optional properties
-    if (!Utility.isBlank(subject)) {
-      message.subject = subject;
-    }
+      // Add optional properties
+      if (!Utility.isBlank(subject)) {
+        message.subject = subject;
+      }
 
-    if (
-      applicationProperties != null &&
-      Object.keys(applicationProperties).length
-    ) {
-      message.applicationProperties = applicationProperties;
-    }
+      if (
+        applicationProperties != null &&
+        Object.keys(applicationProperties).length
+      ) {
+        message.applicationProperties = applicationProperties;
+      }
 
-    if (deliveryDelaySeconds > 0) {
-      schedDate = schedDate.plus({ seconds: deliveryDelaySeconds });
-      schedDate = schedDate.toJSDate();
-      message.scheduledEnqueueTimeUtc = schedDate;
+      if (deliveryDelaySeconds > 0) {
+        schedDate = schedDate.plus({ seconds: deliveryDelaySeconds });
+        schedDate = schedDate.toJSDate();
+        message.scheduledEnqueueTimeUtc = schedDate;
+      }
+    } catch (e) {
+      throw new AsbOperationError(e, 'Message is malformed, see error.');
     }
 
     let opts = { identifier: whoIam };
@@ -220,16 +225,19 @@ module.exports = class AsbHelper {
       let client = null;
       let sender = null;
       try {
-        client = new ServiceBusClient(this.client.connectionString);
+        client = new ServiceBusClient(this.config.connectionString);
         client.identifier = whoIam;
         sender = client.createSender(this.config.queue, opts);
         await sender.sendMessages(message);
       } catch (e) {
-        throw new AsqOperationError(e, 'Check connection string or queue name');
+        throw new AsbOperationError(e, 'Check connection string or queue name');
       } finally {
         sender = null;
+        if (sender != null) {
+          await sender.close();
+        }
         if (client != null) {
-          client.close();
+          await client.close();
         }
         client = null;
       }
