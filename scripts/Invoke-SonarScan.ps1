@@ -1,0 +1,1 @@
+c:\sonarqube\bin\sonar-scanner -D sonar.projectKey=NodePersonApi -D sonar.sources=. -D sonar.host.url=http://localhost:9000

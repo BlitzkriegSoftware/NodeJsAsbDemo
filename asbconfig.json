@@ -1,0 +1,5 @@
+{
+    "connectionString": "Endpoint=sb://stuartwilliamsasb.servicebus.windows.net/;SharedAccessKeyName=DemoKey;SharedAccessKey=Q3Kqnz3y/sVwrTnMFKcsGWdd5okWl3F4Q+ASbFApPWY=",
+    "queue": "clademoqueue",
+    "dryRun": true
+}
